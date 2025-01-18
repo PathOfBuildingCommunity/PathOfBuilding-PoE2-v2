@@ -182,7 +182,6 @@ statMap = {
 #mods
 #skillEnd
 
-#from item
 #skill MeleeUnarmedPlayer
 #startSets
 #set MeleeUnarmedPlayer
