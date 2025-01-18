@@ -896,8 +896,14 @@ function calcs.defence(env, actor)
 				end
 				energyShieldBase = armourData.EnergyShield or 0
 				if energyShieldBase > 0 then
-					if slot == "Body Armour" and modDB:Flag(nil, "DoubleBodyArmourDefence") then
-						energyShieldBase = energyShieldBase * 2
+					if slot == "Body Armour" then
+						if modDB:Flag(nil, "DoubleBodyArmourDefence") then
+							energyShieldBase = energyShieldBase * 2
+						end
+
+						local inc = modDB:Sum("INC", slotCfg, "EnergyShield", "Defences")
+						local more = modDB:More(slotCfg, "EnergyShield", "Defences")
+						gearEnergyShield = gearEnergyShield + energyShieldBase * (1 + inc / 100) * more
 					end
 					if modDB:Flag(nil, "EnergyShieldToWard") then
 						local more = modDB:More(slotCfg, "EnergyShield", "Defences")
@@ -930,6 +936,10 @@ function calcs.defence(env, actor)
 						if modDB:Flag(nil, "ConvertBodyArmourArmourEvasionToWard") then
 							armourBase = armourBase * (1 - ((modDB:Sum("BASE", nil, "BodyArmourArmourEvasionToWardPercent") or 0) / 100))
 						end
+
+						local inc = modDB:Sum("INC", slotCfg, "Armour", "Defences")
+						local more = modDB:More(slotCfg, "Armour", "Defences")
+						gearArmour = gearArmour + armourBase * (1 + inc / 100) * more
 					end
 					gearArmour = gearArmour + armourBase
 					if breakdown then
@@ -948,6 +958,10 @@ function calcs.defence(env, actor)
 						if modDB:Flag(nil, "ConvertBodyArmourArmourEvasionToWard") then
 							evasionBase = evasionBase * (1 - ((modDB:Sum("BASE", nil, "BodyArmourArmourEvasionToWardPercent") or 0) / 100))
 						end
+
+						local inc = modDB:Sum("INC", slotCfg, "Evasion", "Defences")
+						local more = modDB:More(slotCfg, "Evasion", "Defences")
+						gearEvasion = gearEvasion + evasionBase * (1 + inc / 100) * more
 					end
 					gearEvasion = gearEvasion + evasionBase
 					if breakdown then
