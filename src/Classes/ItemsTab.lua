@@ -427,7 +427,11 @@ holding Shift will put it in the second.]])
 		function(index, value)
 			self.displayItem.catalyst = index - 1
 			if not self.displayItem.catalystQuality then
-				self.displayItem.catalystQuality = 20
+				if string.match(self.displayItem.name, "Breach Ring") then 
+					self.displayItem.catalystQuality = 50 
+				else 
+					self.displayItem.catalystQuality = 20 
+				end 
 				self.controls.displayItemCatalystQualityEdit:SetText(self.displayItem.catalystQuality)
 			end
 			if self.displayItem.crafted then
