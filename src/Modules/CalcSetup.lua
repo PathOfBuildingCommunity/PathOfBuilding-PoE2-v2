@@ -93,13 +93,11 @@ function calcs.initModDB(env, modDB)
 end
 
 -- grab the stat lines from the selected variants on the jewel to add to the nodes
--- e.g. Against the Darkness
+-- e.g. Against the Darkness or Time-Lost jewels
 local function setRadiusJewelStats(radiusJewel, radiusJewelStats)
-	local jewel = radiusJewel.item
-	if jewel.title == "Against the Darkness" then
-		radiusJewelStats.source = radiusJewel.data.modSource
-
-		local variant = jewel.variant or 1
+	-- ATD has a special case with variant/variantAlt but other jewels have a fairly simple iterative list
+	local function setStats(jewel, radiusJewelStats, index, alternate)
+		local variant = (alternate and jewel.variantAlt or jewel.variant) or index
 		local range = jewel.explicitModLines[variant].range
 		local value = 0
 		jewel.explicitModLines[variant].line:gsub("%((%d+)%-(%d+)%)",
@@ -107,23 +105,23 @@ local function setRadiusJewelStats(radiusJewel, radiusJewelStats)
 				value = round(num1 + (num2-num1) * range)
 			end
 		)
-		radiusJewelStats[1] = {
+		radiusJewelStats[index] = {
 			isNotable = (jewel.explicitModLines[variant].line:match("^(%S+)") == "Notable"),
 			sd = jewel.explicitModLines[variant].line:gsub(".*grant ", ""):gsub("%(.-%)", value)
 		}
-		
-		local variantAlt = jewel.variantAlt or 2
-		local rangeAlt = jewel.explicitModLines[variantAlt].range
-		local valueAlt = 0
-		jewel.explicitModLines[variantAlt].line:gsub("%((%d+)%-(%d+)%)",
-			function(num1, num2)
-				valueAlt = round(num1 + (num2-num1) * rangeAlt)
+	end
+	
+	local jewel = radiusJewel.item
+	if jewel.baseName:find("Time%-Lost") == 1 then
+		radiusJewelStats.source = radiusJewel.data.modSource
+		if jewel.title == "Against the Darkness" then
+			setStats(jewel, radiusJewelStats, 1, false)
+			setStats(jewel, radiusJewelStats, 2, true)
+		else
+			for modIndex, _ in ipairs(jewel.explicitModLines) do
+				setStats(jewel, radiusJewelStats, modIndex, false)
 			end
-		)
-		radiusJewelStats[2] = {
-			isNotable = (jewel.explicitModLines[variantAlt].line:match("^(%S+)") == "Notable"),
-			sd = jewel.explicitModLines[variantAlt].line:gsub(".*grant ", ""):gsub("%(.-%)", valueAlt)
-		}
+		end
 	end
 end
 
@@ -155,11 +153,11 @@ local function addStatsFromJewelToNode(jewel, node, spec)
 		if itemsTab.activeSocketList then
 			for _, nodeId in pairs(itemsTab.activeSocketList) do
 				local _, socketedJewel = itemsTab:GetSocketAndJewelForNodeID(nodeId)
-				if socketedJewel and socketedJewel.title == "Against the Darkness" then
+				if socketedJewel and socketedJewel.baseName:find("Time%-Lost") == 1 then
 					return addStats(jewel, node, spec)
 				end
 			end
-			-- activeSocketList isn't init on Load, need to run once
+		-- activeSocketList isn't init on Load, need to run once
 		elseif itemsTab.initSockets then
 			return addStats(jewel, node, spec)
 		end
@@ -193,7 +191,7 @@ function calcs.buildModListForNode(env, node, incSmallPassiveSkill)
 	-- Run first pass radius jewels
 	for _, rad in pairs(env.radiusJewelList) do
 		if rad.type == "Other" and rad.nodes[node.id] and rad.nodes[node.id].type ~= "Mastery" then
-			if rad.item.title ~= "Against the Darkness" then
+			if rad.item.baseName:find("Time%-Lost") ~= 1 then
 				rad.func(node, modList, rad.data)
 			else
 				local nodeList = addStatsFromJewelToNode(rad, node, env.build.spec)
@@ -217,7 +215,7 @@ function calcs.buildModListForNode(env, node, incSmallPassiveSkill)
 	-- Run second pass radius jewels
 	for _, rad in pairs(env.radiusJewelList) do
 		if rad.nodes[node.id] and rad.nodes[node.id].type ~= "Mastery" and (rad.type == "Threshold" or (rad.type == "Self" and env.allocNodes[node.id]) or (rad.type == "SelfUnalloc" and not env.allocNodes[node.id])) then
-			if rad.item.title ~= "Against the Darkness" then
+			if rad.item.baseName:find("Time%-Lost") ~= 1 then
 				rad.func(node, modList, rad.data)
 			else
 				local nodeList = addStatsFromJewelToNode(rad, node, env.build.spec)
