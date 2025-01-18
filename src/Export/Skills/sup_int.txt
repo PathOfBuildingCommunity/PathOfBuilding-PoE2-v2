@@ -276,6 +276,7 @@ statMap = {
 #set SupportElementalDischargePlayer
 #mods
 #skillEnd
+
 #skill TriggeredElementalDischargePlayer
 #startSets
 #set TriggeredElementalDischargePlayer

@@ -1104,7 +1104,8 @@ skills["SupportElementalDischargePlayer"] = {
 			},
 		},
 	}
-}skills["TriggeredElementalDischargePlayer"] = {
+}
+skills["TriggeredElementalDischargePlayer"] = {
 	name = "Elemental Discharge",
 	hidden = true,
 	skillTypes = { [SkillType.Spell] = true, [SkillType.Damage] = true, [SkillType.SkillGrantedBySupport] = true, [SkillType.Triggerable] = true, [SkillType.Cooldown] = true, [SkillType.Triggered] = true, },

@@ -1471,7 +1471,8 @@ skills["HeraldOfThunderPlayer"] = {
 			incrementalEffectiveness = 0.054999999701977,
 			statDescriptionScope = "herald_of_thunder_statset_1",
 			baseFlags = {
-				attack = true,
+				nonWeaponAttack = true,
+				hit = true,
 			},
 			constantStats = {
 				{ "active_skill_base_physical_damage_%_to_convert_to_lightning", 100 },

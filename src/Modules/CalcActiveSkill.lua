@@ -355,7 +355,7 @@ function calcs.buildActiveSkillModList(env, activeSkill)
 	if skillFlags.hit then
 		skillModFlags = bor(skillModFlags, ModFlag.Hit)
 	end
-	if skillFlags.attack then
+	if skillFlags.attack or skillFlags.nonWeaponAttack then
 		skillModFlags = bor(skillModFlags, ModFlag.Attack)
 	else
 		skillModFlags = bor(skillModFlags, ModFlag.Cast)

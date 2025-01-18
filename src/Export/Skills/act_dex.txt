@@ -149,7 +149,7 @@ statMap = {
 },
 #mods
 #set HeraldOfThunderOnKillPlayer
-#flags attack
+#flags nonWeaponAttack hit
 #mods
 #skillEnd
 
