@@ -88,7 +88,7 @@ function breakdown.slot(source, sourceName, cfg, base, total, ...)
 		total = s_format("%.2f", total or (base * (1 + inc / 100) * more)),
 		source = source,
 		sourceName = sourceName,
-		item = actor.itemList[source],
+		item = not sourceName and actor.itemList[source],
 	})
 end
 

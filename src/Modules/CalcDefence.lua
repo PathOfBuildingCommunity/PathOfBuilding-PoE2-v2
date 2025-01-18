@@ -1009,11 +1009,11 @@ function calcs.defence(env, actor)
 		end
 
 		local resourceList = {
-			{ name = "Armour", extraBase = gearArmour, conversionRate = { }, mods = { "Armour", "ArmourAndEvasion", "Defences" }, defence = true },
-			{ name = "Evasion", extraBase = gearEvasion, conversionRate = { }, mods = { "Evasion", "ArmourAndEvasion", "Defences" }, defence = true },
-			{ name = "EnergyShield", extraBase = gearEnergyShield, conversionRate = { }, mods = { "EnergyShield", "Defences" }, defence = true },
-			{ name = "Life", extraBase = 0, conversionRate = { }, mods = { "Life" }, },
-			{ name = "Mana", extraBase = 0, conversionRate = { }, mods = { "Mana" }, },
+			{ name = "Armour", basePerSlot = {}, globalBase = 0, conversionRate = { }, mods = { "Armour", "ArmourAndEvasion", "Defences" }, defence = true },
+			{ name = "Evasion", basePerSlot = {}, globalBase = 0, conversionRate = { }, mods = { "Evasion", "ArmourAndEvasion", "Defences" }, defence = true },
+			{ name = "EnergyShield", basePerSlot = {}, globalBase = 0, conversionRate = { }, mods = { "EnergyShield", "Defences" }, defence = true },
+			{ name = "Life", basePerSlot = {}, globalBase = 0, conversionRate = { }, mods = { "Life" }, },
+			{ name = "Mana", basePerSlot = {}, globalBase = 0, conversionRate = { }, mods = { "Mana" }, },
 		}
 		for _, source in ipairs(resourceList) do
 			output[source.name] = (output[source.name] or 0)
@@ -1030,33 +1030,60 @@ function calcs.defence(env, actor)
 				end
 			end
 			source.totalConversion = totalConversion
+			for _, slot in pairs({"Helmet","Gloves","Boots","Body Armour","Weapon 2","Weapon 3"}) do
+				source.basePerSlot[slot] = actor.itemList[slot] and actor.itemList[slot].armourData and actor.itemList[slot].armourData[source.name] or 0
+			end
 		end
 		for _, source in ipairs(resourceList) do
-			local sourceBase = modDB:Sum("BASE", nil, unpack(source.mods)) + source.extraBase
-			if sourceBase > 0 then
-				for _, target in ipairs(resourceList) do
-					if source.name ~= target.name then
-						local gainRate = modDB:Sum("BASE", nil, source.name.."GainAs"..target.name)
+			local globalBase = modDB:Sum("BASE", nil, unpack(source.mods)) + source.globalBase
+			for _, target in ipairs(resourceList) do
+				if source.name ~= target.name then
+					if source.defence then
+						local gainRate = modDB:Sum("BASE", nil, source.name .. "GainAs" .. target.name)
 						local rate = source.conversionRate[target.name] + gainRate
 						if rate > 0 then
-							local targetBase = sourceBase * rate / 100
-							target.extraBase = target.extraBase + targetBase
+							for _, slot in pairs({ "Helmet", "Gloves", "Boots", "Body Armour", "Weapon 2", "Weapon 3" }) do
+								if source.basePerSlot[slot] > 0 then
+									local targetBase = source.basePerSlot[slot] * rate / 100
+									if target.defence then
+										target.basePerSlot[slot] = target.basePerSlot[slot] + targetBase
+									else
+										target.globalBase = target.globalBase + targetBase
+									end
+									if breakdown then
+										breakdown.slot(slot, source.name .. " to " .. target.name .. " conversion", { slotName = slot }, targetBase, nil, unpack(target.mods))
+									end
+									source.basePerSlot[slot] = source.basePerSlot[slot] * (100 - source.totalConversion) / 100
+								end
+							end
+							target.globalBase = target.globalBase + globalBase * rate / 100
 							if breakdown then
-								breakdown.slot("Conversion", source.name.." to "..target.name, nil, targetBase, nil, unpack(target.mods))
+								breakdown.slot("Global", source.name .. " to " .. target.name .. " conversion", nil, globalBase, nil, unpack(target.mods))
+							end
+						end
+						source.globalBase = globalBase * (100 - source.totalConversion) / 100
+					else
+						local gainRate = modDB:Sum("BASE", nil, source.name .. "GainAs" .. target.name)
+						local rate = source.conversionRate[target.name] + gainRate
+						if rate > 0 then
+							local targetBase = globalBase * rate / 100
+							target.globalBase = target.globalBase + targetBase
+							if breakdown then
+								breakdown.slot("Conversion", source.name .. " to " .. target.name, nil, targetBase, nil, unpack(target.mods))
 							end
 						end
 					end
 				end
 			end
-			if source.defence then
-				source.extraBase = sourceBase * (100 - source.totalConversion) / 100
-			end
 		end
 		for _, res in ipairs(resourceList) do
 			if res.defence then
-				output[res.name] = output[res.name] + res.extraBase * calcLib.mod(modDB, nil, unpack(res.mods))
+				for _, slot in pairs({"Helmet","Gloves","Boots","Body Armour","Weapon 2","Weapon 3"}) do
+					output[res.name] = output[res.name] + res.basePerSlot[slot] * calcLib.mod(modDB, { slotName = slot }, unpack(res.mods))
+				end
+				output[res.name] = output[res.name] + res.globalBase * calcLib.mod(modDB, nil, unpack(res.mods))
 			else
-				modDB:NewMod("Extra"..res.name, "BASE", res.extraBase, "Conversion")
+				modDB:NewMod("Extra"..res.name, "BASE", res.globalBase, "Conversion")
 			end
 		end
 		output.EnergyShield = modDB:Override(nil, "EnergyShield") or m_max(round(output.EnergyShield), 0)
