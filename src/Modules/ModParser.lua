@@ -2801,6 +2801,9 @@ local specialModList = {
 	["reflects your other ring"] = {
 		-- Display only. For Kalandra's Touch.
 	},
+	["maximum quality is 50%%"] = {
+		-- Display only. For Breach Rings.
+	},
 	["has (%d+) sockets?"] = function(num) return { mod("SocketCount", "BASE", num) } end,
 	["no physical damage"] = { mod("WeaponData", "LIST", { key = "PhysicalMin" }), mod("WeaponData", "LIST", { key = "PhysicalMax" }), mod("WeaponData", "LIST", { key = "PhysicalDPS" }) },
 	["has (%d+)%% increased elemental damage"] = function(num) return { mod("LocalElementalDamage", "INC", num) } end,
