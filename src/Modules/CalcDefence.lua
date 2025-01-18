@@ -287,8 +287,7 @@ function calcs.applyDmgTakenConversion(activeSkill, output, breakdown, sourceTyp
 			local percentOfArmourApplies = m_min((not activeSkill.skillModList:Flag(nil, "ArmourDoesNotApplyTo"..damageType.."DamageTaken") and activeSkill.skillModList:Sum("BASE", nil, "ArmourAppliesTo"..damageType.."DamageTaken") or 0), 100)
 			if percentOfArmourApplies > 0 then
 				local effArmour = (output.Armour * percentOfArmourApplies / 100) * (1 + output.ArmourDefense)
-				local effDamage = damage * resMult
-				armourReduct = round(effArmour ~= 0 and damage * resMult ~= 0 and calcs.armourReductionF(effArmour, effDamage) or 0)
+				armourReduct = round(effArmour ~= 0 and damage ~= 0 and calcs.armourReductionF(effArmour, damage) or 0)
 				armourReduct = m_min(output.DamageReductionMax, armourReduct)
 			end
 			reductMult = (1 - m_max(m_min(output.DamageReductionMax, armourReduct + reduction), 0) / 100) * damageTakenMods
@@ -321,13 +320,13 @@ function calcs.takenHitFromDamage(rawDamage, damageType, actor)
 	local output = actor.output
 	local modDB = actor.modDB
 	local function damageMitigationMultiplierForType(damage, type)
-		local totalResistMult = output[type .."ResistTakenHitMulti"]
 		local effectiveAppliedArmour = output[type .."EffectiveAppliedArmour"]
-		local armourDRPercent = calcs.armourReductionF(effectiveAppliedArmour, damage * totalResistMult)
+		local armourDRPercent = calcs.armourReductionF(effectiveAppliedArmour, damage)
 		local flatDRPercent = modDB:Flag(nil, "SelfIgnore".."Base".. type .."DamageReduction") and 0 or output["Base".. type .."DamageReductionWhenHit"] or output["Base".. type .."DamageReduction"]
 		local totalDRPercent = m_min(output.DamageReductionMax, armourDRPercent + flatDRPercent)
 		local enemyOverwhelmPercent = modDB:Flag(nil, "SelfIgnore".. type .."DamageReduction") and 0 or output[type .."EnemyOverwhelm"]
 		local totalDRMulti = 1 - m_max(m_min(output.DamageReductionMax, totalDRPercent - enemyOverwhelmPercent), 0) / 100
+		local totalResistMult = output[type .."ResistTakenHitMulti"]
 		return totalResistMult * totalDRMulti
 	end
 	local receivedDamageSum = 0
@@ -1956,10 +1955,10 @@ function calcs.buildDefenceEstimations(env, actor)
 		end
 		output[damageType.."takenFlat"] = takenFlat
 		if percentOfArmourApplies > 0 then
-			armourReduct = calcs.armourReduction(effectiveAppliedArmour, damage * resMult)
+			armourReduct = calcs.armourReduction(effectiveAppliedArmour, damage)
 			armourReduct = m_min(output.DamageReductionMax, armourReduct)
 			if impaleDamage > 0 then
-				impaleArmourReduct = m_min(output.DamageReductionMax, calcs.armourReduction(effectiveAppliedArmour, impaleDamage * resMult))
+				impaleArmourReduct = m_min(output.DamageReductionMax, calcs.armourReduction(effectiveAppliedArmour, impaleDamage))
 			end
 		end
 		local totalReduct = m_min(output.DamageReductionMax, armourReduct + reduction)
@@ -1972,15 +1971,15 @@ function calcs.buildDefenceEstimations(env, actor)
 		if breakdown then
 			breakdown[damageType.."DamageReduction"] = { }
 			if armourReduct ~= 0 then
+				if percentOfArmourApplies ~= 100 then
+					t_insert(breakdown[damageType.."DamageReduction"], s_format("%d%% percent of armour applies", percentOfArmourApplies))
+				end
+				t_insert(breakdown[damageType.."DamageReduction"], s_format("Reduction from Armour: %d%%", armourReduct))
 				if resMult ~= 1 then
 					t_insert(breakdown[damageType.."DamageReduction"], s_format("Enemy Hit Damage After Resistance: %d ^8(total incoming damage)", damage * resMult))
 				else
 					t_insert(breakdown[damageType.."DamageReduction"], s_format("Enemy Hit Damage: %d ^8(total incoming damage)", damage))
 				end
-				if percentOfArmourApplies ~= 100 then
-					t_insert(breakdown[damageType.."DamageReduction"], s_format("%d%% percent of armour applies", percentOfArmourApplies))
-				end
-				t_insert(breakdown[damageType.."DamageReduction"], s_format("Reduction from Armour: %d%%", armourReduct))
 			end
 			if reduction ~= 0 then
 				t_insert(breakdown[damageType.."DamageReduction"], s_format("Base %s Damage Reduction: %d%%", damageType, reduction))
@@ -2019,24 +2018,10 @@ function calcs.buildDefenceEstimations(env, actor)
 		end
 		if breakdown then
 			breakdown[damageType.."TakenHitMult"] = { }
-			if resist ~= 0 then
-				t_insert(breakdown[damageType.."TakenHitMult"], s_format("Resistance: %.2f", 1 - resist / 100))
-			end
-			if enemyPen ~= 0 then
-				t_insert(breakdown[damageType.."TakenHitMult"], s_format("+ Enemy Pen: %.2f", enemyPen / 100))
-			end
-			if resist ~= 0 and enemyPen ~= 0 then
-				t_insert(breakdown[damageType.."TakenHitMult"], s_format("= %.2f", resMult))
-			end
 			if reduction ~= 0 then
 				t_insert(breakdown[damageType.."TakenHitMult"], s_format("Base %s Damage Reduction: %.2f", damageType, 1 - reduction / 100))
 			end
 			if armourReduct ~= 0 then
-				if resMult ~= 1 then
-					t_insert(breakdown[damageType.."TakenHitMult"], s_format("Enemy Hit Damage After Resistance: %d ^8(total incoming damage)", damage * resMult))
-				else
-					t_insert(breakdown[damageType.."TakenHitMult"], s_format("Enemy Hit Damage: %d ^8(total incoming damage)", damage))
-				end
 				if percentOfArmourApplies ~= 100 then
 					t_insert(breakdown[damageType.."TakenHitMult"], s_format("%d%% percent of armour applies", percentOfArmourApplies))
 				end
@@ -2047,6 +2032,15 @@ function calcs.buildDefenceEstimations(env, actor)
 			end
 			if reduction ~= 0 or armourReduct ~= 0 or enemyOverwhelm ~= 0 then
 				t_insert(breakdown[damageType.."TakenHitMult"], s_format("= %.2f", reductMult))
+			end
+			if resist ~= 0 then
+				t_insert(breakdown[damageType.."TakenHitMult"], s_format("Resistance: %.2f", 1 - resist / 100))
+			end
+			if enemyPen ~= 0 then
+				t_insert(breakdown[damageType.."TakenHitMult"], s_format("+ Enemy Pen: %.2f", enemyPen / 100))
+			end
+			if resist ~= 0 and enemyPen ~= 0 then
+				t_insert(breakdown[damageType.."TakenHitMult"], s_format("= %.2f", resMult))
 			end
 			if resMult ~= 1 and reductMult ~= 1 then
 				t_insert(breakdown[damageType.."TakenHitMult"], s_format("%.2f x %.2f = %.3f", resMult, reductMult, baseMult))
@@ -3171,30 +3165,32 @@ function calcs.buildDefenceEstimations(env, actor)
 						local totalResistMult = output[damageConvertedType.."ResistTakenHitMulti"]
 
 						local reductionPercent = modDB:Flag(nil, "SelfIgnore".."Base"..damageConvertedType.."DamageReduction") and 0 or output["Base"..damageConvertedType.."DamageReductionWhenHit"] or output["Base"..damageConvertedType.."DamageReduction"]
-						local flatDR = reductionPercent / 100
 						local enemyOverwhelmPercent = modDB:Flag(nil, "SelfIgnore"..damageConvertedType.."DamageReduction") and 0 or output[damageConvertedType.."EnemyOverwhelm"]
+						local flatDR = reductionPercent / 100
 
 						-- We know the damage and armour calculation chain. The important part for max hit calculations is:
-						-- 		dmgAfterRes = RAW * DamageConvertedMulti * ResistanceMulti
-						-- 		armourDR = AppliedArmour / (AppliedArmour + data.misc.ArmourRatio * dmgAfterRes)
-						-- 		totalDR = max(min(armourDR + FlatDR, MaxReduction) - Overwhelm, 0)	-- min and max is complicated to actually math out so skip caps first and tack it on later. Result should be close enough
-						-- 		dmgReceived = dmgAfterRes * (1 - totalDR)
-						-- 		damageTaken = (dmgReceived + takenFlat) * TakenMulti
+						-- 		armourDR = AppliedArmour / (AppliedArmour + data.misc.ArmourRatio * RAW * DamageConvertedMulti)
+						-- 		drMulti = 1 - max(min(armourDR + FlatDR, MaxReduction) - Overwhelm, 0)	-- min and max is complicated to actually math out so skip caps first and tack it on later. Result should be close enough
+						-- 		dmgAfterRes = RAW * DamageConvertedMulti * drMulti * ResistanceMulti
+						-- 		damageTaken = (dmgAfterRes + takenFlat) * TakenMulti
 						-- If we consider damageTaken to be the total hit pool of the actor, we can go backwards in the chain until we find the max hit - the RAW damage.
 						-- Unfortunately the above is slightly simplified and is missing a line that *really* complicates stuff for exact calculations:
 						--		damageTaken = damageTakenAsPhys + damageTakenAsFire + damageTakenAsCold + damageTakenAsLightning + damageTakenAsChaos
 						-- Trying to solve that for RAW might require solving a polynomial equation of 6th degree, so this solution settles for solving the parts independently and then approximating the final result
 						--
 						-- To solve only one part the above can be expressed as this:
-						--		data.misc.ArmourRatio * (1 - FlatDR + Overwhelm) * TakenMulti * ResistanceMulti * ResistanceMulti * DamageConvertedMulti * DamageConvertedMulti * RAW * RAW + ((Overwhelm - FlatDR) * AppliedArmour * TakenMulti 
-						--			- data.misc.ArmourRatio * (damageTaken - takenFlat * TakenMulti)) * ResistanceMulti * DamageConvertedMulti * RAW - (damageTaken - takenFlat * TakenMulti) * AppliedArmour = 0
+						--		RAW * RAW * data.misc.ArmourRatio * DamageConvertedMulti * (1 - FlatDR + Overwhelm)
+						--		+ RAW * (AppliedArmour * (1 - FlatDR + Overwhelm) - AppliedArmour - (damageTaken / TakenMulti - takenFlat) / (DamageConvertedMulti * ResistanceMulti) * data.misc.ArmourRatio * DamageConvertedMulti)
+						--		- (damageTaken / TakenMulti - takenFlat) / (DamageConvertedMulti * ResistanceMulti) * AppliedArmour = 0
 						-- Which means that
 						-- 		RAW = [quadratic]
 
-						local resistXConvert = totalResistMult * damageConvertedMulti
-						local a = data.misc.ArmourRatio * (1 - flatDR + enemyOverwhelmPercent / 100) * totalTakenMulti * resistXConvert * resistXConvert
-						local b = ((enemyOverwhelmPercent / 100 - flatDR) * effectiveAppliedArmour * totalTakenMulti - data.misc.ArmourRatio * (totalHitPool - takenFlat * totalTakenMulti)) * resistXConvert
-						local c = -effectiveAppliedArmour * (totalHitPool - takenFlat * totalTakenMulti)
+						local oneMinusFlatPlusOverwhelm = (1 + flatDR - enemyOverwhelmPercent / 100)
+						local HP_tTM_tF_DCM_tRM = (totalHitPool / totalTakenMulti - takenFlat) / (damageConvertedMulti * totalResistMult)
+						
+						local a = data.misc.ArmourRatio * damageConvertedMulti * oneMinusFlatPlusOverwhelm
+						local b = (effectiveAppliedArmour * oneMinusFlatPlusOverwhelm - effectiveAppliedArmour - HP_tTM_tF_DCM_tRM * data.misc.ArmourRatio * damageConvertedMulti)
+						local c = -HP_tTM_tF_DCM_tRM * effectiveAppliedArmour
 
 						local RAW = (m_sqrt(b * b - 4 * a * c) - b) / (2 * a)
 
