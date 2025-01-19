@@ -3059,7 +3059,10 @@ function ItemsTabClass:AddItemTooltip(tooltip, item, slot, dbMode)
 		for _, compareSlot in pairs(compareSlots) do
 			if not main.slotOnlyTooltips or (slot and (slot.nodeId == compareSlot.nodeId or slot.slotName == compareSlot.slotName)) or not slot or slot == compareSlot then
 				local selItem = self.items[compareSlot.selItemId]
+				-- short term fix for Time-Lost jewel processing
+				self.skipTimeLostJewelProcessing = true
 				local output = calcFunc({ repSlotName = compareSlot.slotName, repItem = item ~= selItem and item or nil})
+				self.skipTimeLostJewelProcessed = false
 				local header
 				if item == selItem then
 					header = "^7Removing this item from "..compareSlot.label.." will give you:"
