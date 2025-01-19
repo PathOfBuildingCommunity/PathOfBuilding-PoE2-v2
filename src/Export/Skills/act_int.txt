@@ -777,7 +777,17 @@ end,
 #skill PainOfferingPlayer
 #startSets
 #set PainOfferingPlayer
-#flags minion area
+#flags
+statMap = {
+	["pain_offering_attack_and_cast_speed_+%"] = {
+		mod("Speed", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+	["pain_offering_damage_+%_final"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+},
+#baseMod skill("buffMinions", true)
+#baseMod skill("buffNotPlayer", true)
 #mods
 #skillEnd
 
@@ -992,7 +1002,12 @@ statMap = {
 #skill SoulOfferingPlayer
 #startSets
 #set SoulOfferingPlayer
-#flags minion duration
+#flags duration
+statMap = {
+	["power_offering_buff_spell_damage_+%_final"] = {
+		mod("Damage", "MORE", nil, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+},
 #mods
 #skillEnd
 

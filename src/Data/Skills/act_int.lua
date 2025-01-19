@@ -12016,9 +12016,19 @@ skills["PainOfferingPlayer"] = {
 			label = "Pain Offering",
 			incrementalEffectiveness = 0.054999999701977,
 			statDescriptionScope = "pain_offering",
+			statMap = {
+				["pain_offering_attack_and_cast_speed_+%"] = {
+					mod("Speed", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+				},
+				["pain_offering_damage_+%_final"] = {
+					mod("Damage", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+				},
+			},
 			baseFlags = {
-				minion = true,
-				area = true,
+			},
+			baseMods = {
+				skill("buffMinions", true),
+				skill("buffNotPlayer", true),
 			},
 			constantStats = {
 				{ "base_skill_effect_duration", 6000 },
@@ -15161,8 +15171,12 @@ skills["SoulOfferingPlayer"] = {
 			label = "Soul Offering",
 			incrementalEffectiveness = 0.054999999701977,
 			statDescriptionScope = "power_offering",
+			statMap = {
+				["power_offering_buff_spell_damage_+%_final"] = {
+					mod("Damage", "MORE", nil, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" }),
+				},
+			},
 			baseFlags = {
-				minion = true,
 				duration = true,
 			},
 			constantStats = {
