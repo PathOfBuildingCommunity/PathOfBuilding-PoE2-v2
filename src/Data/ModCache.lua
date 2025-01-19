@@ -3076,7 +3076,7 @@ c["Your Critical Damage Bonus is 300%"]={{[1]={flags=0,keywordFlags=0,name="Crit
 c["Your Critical Hits do not deal extra Damage"]={{[1]={flags=0,keywordFlags=0,name="NoCritMultiplier",type="FLAG",value=true}},nil}
 c["Your Curses have 20% increased Effect if 50% of Curse Duration expired"]={{[1]={[1]={actor="enemy",threshold=50,type="MultiplierThreshold",var="CurseExpired"},[2]={skillType=79,type="SkillType"},flags=0,keywordFlags=0,name="CurseEffect",type="INC",value=20}},nil}
 c["Your Curses have infinite Duration"]={{[1]={[1]={skillType=79,type="SkillType"},flags=0,keywordFlags=0,name="Duration",type="BASE",value=math.huge}},nil}
-c["Your Dexterity is added to your Minions"]={nil,"Your Dexterity is added to your Minions "}
+c["Your Dexterity is added to your Minions"]={{[1]={[1]={actor="Parent",stat="Dex",type="PerStat"},flags=0,keywordFlags=0,name="MinionModifier",type="LIST",value={mod={flags=0,keywordFlags=0,name="Accuracy",type="BASE",value=5}}}},nil}
 c["Your Hits are Crushing Blows"]={nil,"Your Hits are Crushing Blows "}
 c["Your Hits can't be Evaded"]={{[1]={flags=0,keywordFlags=0,name="CannotBeEvaded",type="FLAG",value=true}},nil}
 c["Your Stun Threshold is doubled"]={{[1]={flags=0,keywordFlags=0,name="StunThreshold",type="MORE",value=100}},nil}

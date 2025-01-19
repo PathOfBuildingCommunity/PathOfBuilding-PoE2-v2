@@ -3848,7 +3848,7 @@ local specialModList = {
 	-- Minions
 	["your strength is added to your minions"] = { flag("StrengthAddedToMinions") },
 	["half of your strength is added to your minions"] = { flag("HalfStrengthAddedToMinions") },
-	["minions' accuracy rating is equal to yours"] = { flag("MinionAccuracyEqualsAccuracy") },
+	["your dexterity is added to your minions"] = function(num) return { mod("MinionModifier", "LIST", { mod = mod("Accuracy", "BASE", 5) }, { type = "PerStat", stat = "Dex", actor = "Parent" }) } end,
 	["minions created recently have (%d+)%% increased attack and cast speed"] = function(num) return { mod("MinionModifier", "LIST", { mod = mod("Speed", "INC", num) }, { type = "Condition", var = "MinionsCreatedRecently" }) } end,
 	["minions created recently have (%d+)%% increased movement speed"] = function(num) return { mod("MinionModifier", "LIST", { mod = mod("MovementSpeed", "INC", num) }, { type = "Condition", var = "MinionsCreatedRecently" }) } end,
 	["minions poison enemies on hit"] = { mod("MinionModifier", "LIST", { mod = mod("PoisonChance", "BASE", 100) }) },
