@@ -485,6 +485,10 @@ directiveTable.skill = function(state, args, out)
 				weaponTypes[weaponClassMap[class.Id]] = true
 			end
 		end
+		-- Punch/MeleeUnarmedPlayer // skills with Unarmed in name that don't have restrictions
+		if #weaponTypes == 0 and (grantedId and grantedId:find("Unarmed")) then
+			weaponTypes["None"] = true
+		end
 		if next(weaponTypes) then
 			out:write('\tweaponTypes = {\n')
 			for type in pairs(weaponTypes) do

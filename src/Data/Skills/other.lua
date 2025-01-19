@@ -2485,10 +2485,13 @@ skills["PoisonousConcoctionPlayer"] = {
 }
 skills["MeleeUnarmedPlayer"] = {
 	name = "Punch",
-	hidden = true,
+	baseTypeName = "Punch",
 	color = 4,
 	description = "Perform an Unarmed Strike.",
 	skillTypes = { [SkillType.Attack] = true, [SkillType.MeleeSingleTarget] = true, [SkillType.Multistrikeable] = true, [SkillType.Melee] = true, [SkillType.Area] = true, },
+	weaponTypes = {
+		["None"] = true,
+	},
 	castTime = 1,
 	qualityStats = {
 	},
