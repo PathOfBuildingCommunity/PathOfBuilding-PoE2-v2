@@ -1819,9 +1819,12 @@ function calcs.offence(env, actor, activeSkill)
 		for _, toType in ipairs(dmgTypeList) do
 			local conv
 			if skill then
-				conv = m_max(skillModList:Sum("BASE", skillCfg, "Skill"..fromType.."DamageConvertTo"..toType), 0)
+				conv = m_max(skillModList:Sum("BASE", skillCfg,
+					"SkillDamageConvertTo"..toType,
+					"Skill"..fromType.."DamageConvertTo"..toType), 0)
 			else
 				conv = m_max(skillModList:Sum("BASE", skillCfg,
+					"DamageConvertTo"..toType,
 					fromType.."DamageConvertTo"..toType,
 					isElemental[fromType] and "ElementalDamageConvertTo"..toType or nil,
 					fromType ~= "Chaos" and "NonChaosDamageConvertTo"..toType or nil), 0)
@@ -3033,7 +3036,7 @@ function calcs.offence(env, actor, activeSkill)
 			local gainedMin, gainedMax = calcGainedDamage(activeSkill, output, cfg, damageType)
 			local baseMin = output[damageTypeMin.."Base"]
 			local baseMax = output[damageTypeMax.."Base"]
-			local summedMin = baseMin * convMult + convertedMin + gainedMin 
+			local summedMin = baseMin * convMult + convertedMin + gainedMin
 			local summedMax = baseMax * convMult + convertedMax + gainedMax
 			output[damageType.."SummedMinBase"] = m_floor(summedMin)
 			output[damageType.."SummedMaxBase"] = m_floor(summedMax)
