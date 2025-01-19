@@ -1408,6 +1408,14 @@ skills["SupportFeedingFrenzyPlayer"] = {
 			label = "Feeding Frenzy",
 			incrementalEffectiveness = 0.092720001935959,
 			statDescriptionScope = "gem_stat_descriptions",
+			statMap = {
+				["feeding_frenzy_minion_damage_+%_final"] = {
+				mod("MinionModifier", "LIST", { mod = mod("Damage", "MORE", nil) }),
+				},
+				["feeding_frenzy_minion_damage_taken_+%_final"] = {
+					mod("MinionModifier", "LIST", { mod = mod("DamageTaken", "MORE", nil) }),
+				},
+			},
 			baseFlags = {
 			},
 			constantStats = {
