@@ -1,6 +1,6 @@
-VERSION[0.2.0][2025/01/19]
-<!-- Release notes generated using configuration in .github/release.yml at dev -->
+VERSION[0.2.0][19/01/2025]
 
+--- New to Path of Building ---
 * Clicking on the skill passives display cycles through Weapon passive allocation modes (trompetin17)
 * Add support for +Elemental Spell levels (deathbeam)
 * Add support for Archmage (TPlant)
@@ -23,6 +23,7 @@ VERSION[0.2.0][2025/01/19]
 * Add support for parsing Damage gain as (without as extra) (deathbeam)
 * Add support for importing builds from PoE2DB (Peechey)
 * Add support for importing builds from poe2.ninja (rasmuskl)
+
 --- Fixed Crashes ---
 * Fix common crash when allocating Infernal Hound or equipping Minion Skills (paliak)
 * Fix crash when allocating some nodes with weapon set passives (trompetin17)
@@ -30,6 +31,7 @@ VERSION[0.2.0][2025/01/19]
 * Fix crash when allocating Explosive Impact (Peechey)
 * Fix crash when searching for Skill Gems (deathbeam)
 * Fix crash when viewing breakdown of nodes in starting Witch area (trompetin17)
+
 --- User Interface ---
 * Fix Ctrl + Z & Ctrl + Y not saving the allocated attribute stats (Peechey)
 * Fix node power visuals while processing/calculating (trompetin17)
@@ -37,6 +39,7 @@ VERSION[0.2.0][2025/01/19]
 * Fix weapon tree hotkey overriding other tree hotkeys (Wires77)
 * Increased hover range for Skill Tree nodes (trompetin17)
 * Remove Ward displays and update Spirit color (Peechey)
+
 --- Fixed Calculations ---
 * Fix some increased critical damage modifiers incorrectly applying as base critical damage modifiers (TPlant)
 * Fix Widowhail & other Quiver bonus scaling (Nostrademous)
@@ -49,6 +52,7 @@ VERSION[0.2.0][2025/01/19]
 * Update chaos damage taken to deal double damage to Energy Shield (Edvinas-Smita)
 * Fix Bleed damage multiplier when Enemy is moving (deathbeam)
 * Fix export of uniques (TPlant)
+
 --- Fixed Behaviours ---
 * Fix Bleed not working with Spells (deathbeam)
 * Fix Weapon Set passives on Tree not applying correctly (trompetin17)
