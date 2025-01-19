@@ -99,26 +99,42 @@ local function setRadiusJewelStats(radiusJewel, radiusJewelStats)
 	local function setStats(jewel, radiusJewelStats, index, alternate)
 		local variant = (alternate and jewel.variantAlt or jewel.variant) or index
 		local range = jewel.explicitModLines[variant].range
+		local line = jewel.explicitModLines[variant].line
 		local value = 0
-		jewel.explicitModLines[variant].line:gsub("%((%d+)%-(%d+)%)",
+		
+		line:gsub("%((%d+)%-(%d+)%)",
 			function(num1, num2)
 				value = round(num1 + (num2-num1) * range)
 			end
 		)
 		radiusJewelStats[index] = {
-			isNotable = (jewel.explicitModLines[variant].line:match("^(%S+)") == "Notable"),
-			sd = jewel.explicitModLines[variant].line:gsub(".*grant ", ""):gsub("%(.-%)", value)
+			isNotable = (line:match("^(%S+)") == "Notable"),
+			toAdd = (line:find("also% grant")~= nil), -- only add mods with the "also grant" text to radiusNodes
+			sd = line:gsub(".*grant ", ""):gsub("%(.-%)", value)
 		}
 	end
 	
 	local jewel = radiusJewel.item
-	if jewel.baseName:find("Time%-Lost") == 1 then
+	if jewel.baseName:find("Time%-Lost") ~= nil then
 		radiusJewelStats.source = radiusJewel.data.modSource
 		if jewel.title == "Against the Darkness" then
 			setStats(jewel, radiusJewelStats, 1, false)
 			setStats(jewel, radiusJewelStats, 2, true)
 		else
-			for modIndex, _ in ipairs(jewel.explicitModLines) do
+			local jewelModLines = copyTable(jewel.explicitModLines, true)
+			-- sanitize mods in case of line breaks
+			for id, mod in ipairs(jewelModLines) do
+				local line1, line2 = mod.line:match("^(.-)\n(.*)$")
+				-- if a line break is found, copy the modLineTable, modify the original with the first string 
+				-- and add the table with second string to the end
+				if line1 and line2 then
+					jewel.explicitModLines[id].line = line1
+					local linebreakMod = copyTable(jewel.explicitModLines[id])
+					linebreakMod.line = line2
+					t_insert(jewel.explicitModLines, linebreakMod)
+				end
+			end
+			for modIndex, _ in ipairs(jewelModLines) do
 				setStats(jewel, radiusJewelStats, modIndex, false)
 			end
 		end
@@ -136,8 +152,9 @@ local function addStats(jewel, node, spec)
 	local radiusJewelStats = { }
 	setRadiusJewelStats(jewel, radiusJewelStats)
 	for _, stat in ipairs(radiusJewelStats) do
-		-- the node and jewelStat types match, add sd to node if it's not already there
-		if not isValueInTable(node.sd, stat.sd) and ((node.type == "Notable" and stat.isNotable) or (node.type ~= "Notable" and not stat.isNotable)) then
+		-- the node and stat types match, add sd to node if it's not already there and it's an 'also grant' mod
+		if not isValueInTable(node.sd, stat.sd) and ((node.type == "Notable" and stat.isNotable) or (node.type == "Normal" and not stat.isNotable))
+			and stat.toAdd then
 			t_insert(node.sd, stat.sd)
 		end
 	end
@@ -149,7 +166,7 @@ local function addStatsFromJewelToNode(jewel, node, spec)
 	-- attribute nodes do not count as Small Passives
 	if not node.isAttribute then
 		local itemsTab = spec.build.itemsTab
-		-- if Against the Darkness is socketed, add the stat
+		-- if the Time-Lost jewel is socketed, add the stat
 		if itemsTab.activeSocketList then
 			for _, nodeId in pairs(itemsTab.activeSocketList) do
 				local _, socketedJewel = itemsTab:GetSocketAndJewelForNodeID(nodeId)
@@ -174,7 +191,7 @@ function calcs.buildModListForNode(env, node, incSmallPassiveSkill)
 	-- Run first pass radius jewels
 	for _, rad in pairs(env.radiusJewelList) do
 		if rad.type == "Other" and rad.nodes[node.id] and rad.nodes[node.id].type ~= "Mastery" then
-			if rad.item.baseName:find("Time%-Lost") ~= 1 then
+			if rad.item.baseName:find("Time%-Lost") == nil then
 				rad.func(node, modList, rad.data)
 			else
 				local nodeList = addStatsFromJewelToNode(rad, node, env.build.spec)
@@ -198,7 +215,7 @@ function calcs.buildModListForNode(env, node, incSmallPassiveSkill)
 	-- Run second pass radius jewels
 	for _, rad in pairs(env.radiusJewelList) do
 		if rad.nodes[node.id] and rad.nodes[node.id].type ~= "Mastery" and (rad.type == "Threshold" or (rad.type == "Self" and env.allocNodes[node.id]) or (rad.type == "SelfUnalloc" and not env.allocNodes[node.id])) then
-			if rad.item.baseName:find("Time%-Lost") ~= 1 then
+			if rad.item.baseName:find("Time%-Lost") == nil then
 				rad.func(node, modList, rad.data)
 			else
 				local nodeList = addStatsFromJewelToNode(rad, node, env.build.spec)
