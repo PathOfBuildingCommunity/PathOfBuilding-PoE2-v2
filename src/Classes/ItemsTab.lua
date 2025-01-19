@@ -96,7 +96,6 @@ local ItemsTabClass = newClass("ItemsTab", "UndoHandler", "ControlHost", "Contro
 	self.orderedSlots = { }
 	self.slotOrder = { }
 	self.initSockets = true
-	self.skipTimeLostJewelProcessing = false
 	self.slotAnchor = new("Control", {"TOPLEFT",self,"TOPLEFT"}, {96, 76, 310, 0})
 	local prevSlot = self.slotAnchor
 	local function addSlot(slot)
@@ -3061,9 +3060,9 @@ function ItemsTabClass:AddItemTooltip(tooltip, item, slot, dbMode)
 			if not main.slotOnlyTooltips or (slot and (slot.nodeId == compareSlot.nodeId or slot.slotName == compareSlot.slotName)) or not slot or slot == compareSlot then
 				local selItem = self.items[compareSlot.selItemId]
 				-- short term fix for Time-Lost jewel processing
-				self.skipTimeLostJewelProcessing = true
+				self.build.treeTab.skipTimeLostJewelProcessing = true
 				local output = calcFunc({ repSlotName = compareSlot.slotName, repItem = item ~= selItem and item or nil})
-				self.skipTimeLostJewelProcessed = false
+				self.build.treeTab.skipTimeLostJewelProcessing = false
 				local header
 				if item == selItem then
 					header = "^7Removing this item from "..compareSlot.label.." will give you:"

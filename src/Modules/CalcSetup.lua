@@ -143,7 +143,7 @@ end
 
 local function addStats(jewel, node, spec)
 	-- short term to avoid running the logic on AddItemTooltip
-	if not spec.build.itemsTab.skipTimeLostJewelProcessing then
+	if not spec.build.treeTab.skipTimeLostJewelProcessing then
 		-- reset node stats to base or override for attributes
 		if spec.hashOverrides and spec.hashOverrides[node.id] then
 			node.sd = copyTable(spec.hashOverrides[node.id].sd, true)
