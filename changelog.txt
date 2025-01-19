@@ -46,7 +46,7 @@ VERSION[0.2.0][19/01/2025]
 * Fix base Exposure value (deathbeam)
 * Fix base Shock + Chill values (Lexy)
 * Fix Searing Flame ailment magnitude (deathbeam)
-* Fix Arrow Speed not applying to Feathered Fletchingnode (LocalIdentity)
+* Fix Arrow Speed not applying to Feathered Fletching node (LocalIdentity)
 * Fix Explosion damage for Frozen Locus and Shattering Palm (LocalIdentity)
 * Fix calculation of Base Evasion from levels (LocalIdentity)
 * Update chaos damage taken to deal double damage to Energy Shield (Edvinas-Smita)
