@@ -975,7 +975,7 @@ c["15% increased maximum Energy Shield"]={{[1]={[1]={type="Global"},flags=0,keyw
 c["15% increased maximum Life"]={{[1]={flags=0,keywordFlags=0,name="Life",type="INC",value=15}},nil}
 c["15% more Maximum Life"]={{[1]={flags=0,keywordFlags=0,name="Life",type="MORE",value=15}},nil}
 c["15% more Maximum Lightning Damage"]={{[1]={flags=0,keywordFlags=0,name="MaxLightningDamage",type="MORE",value=15}},nil}
-c["15% of Elemental Damage taken Recouped as Life"]={{[1]={flags=0,keywordFlags=0,name="ElementalDamageTaken",type="BASE",value=15}},"  Recouped as Life "}
+c["15% of Elemental Damage taken Recouped as Life"]={{[1]={flags=0,keywordFlags=0,name="LightningLifeRecoup",type="BASE",value=15},[2]={flags=0,keywordFlags=0,name="ColdLifeRecoup",type="BASE",value=15},[3]={flags=0,keywordFlags=0,name="FireLifeRecoup",type="BASE",value=15}},nil}
 c["15% of Physical Damage prevented Recouped as Life"]={{[1]={flags=0,keywordFlags=0,name="PhysicalDamage",type="BASE",value=15}},"  prevented Recouped as Life "}
 c["15% of Physical Damage taken Recouped as Life"]={{[1]={flags=0,keywordFlags=0,name="PhysicalLifeRecoup",type="BASE",value=15}},nil}
 c["15% reduced Attack Speed"]={{[1]={flags=1,keywordFlags=0,name="Speed",type="INC",value=-15}},nil}
@@ -1723,7 +1723,7 @@ c["40% less Evasion Rating"]={{[1]={flags=0,keywordFlags=0,name="Evasion",type="
 c["40% less minimum Physical Attack Damage"]={{[1]={[1]={skillType=1,type="SkillType"},flags=0,keywordFlags=0,name="MinPhysicalDamage",type="MORE",value=-40}},nil}
 c["40% more Damage against Heavy Stunned Enemies"]={{[1]={[1]={actor="enemy",type="ActorCondition",var="HeavyStunned"},flags=0,keywordFlags=0,name="Damage",type="MORE",value=40}},nil}
 c["40% more maximum Physical Attack Damage"]={{[1]={[1]={skillType=1,type="SkillType"},flags=0,keywordFlags=0,name="MaxPhysicalDamage",type="MORE",value=40}},nil}
-c["40% of Elemental Damage taken Recouped as Energy Shield"]={{[1]={flags=0,keywordFlags=0,name="ElementalDamageTaken",type="BASE",value=40}},"  Recouped as Energy Shield "}
+c["40% of Elemental Damage taken Recouped as Energy Shield"]={{[1]={flags=0,keywordFlags=0,name="LightningEnergyShieldRecoup",type="BASE",value=40},[2]={flags=0,keywordFlags=0,name="ColdEnergyShieldRecoup",type="BASE",value=40},[3]={flags=0,keywordFlags=0,name="FireEnergyShieldRecoup",type="BASE",value=40}},nil}
 c["40% of Physical Damage taken as Fire Damage"]={{[1]={flags=0,keywordFlags=0,name="PhysicalDamageTakenAsFire",type="BASE",value=40}},nil}
 c["40% reduced Chill Duration on you"]={{[1]={flags=0,keywordFlags=0,name="SelfChillDuration",type="INC",value=-40}},nil}
 c["40% reduced Damage"]={{[1]={flags=0,keywordFlags=0,name="Damage",type="INC",value=-40}},nil}
@@ -2870,7 +2870,7 @@ c["Projectiles have 40% increased Critical Damage Bonus against Enemies within 2
 c["Projectiles have 5% chance to Chain an additional time from terrain"]={{[1]={flags=1024,keywordFlags=0,name="TerrainChainChance",type="BASE",value=5}},nil}
 c["Projectiles have 75% chance for an additional Projectile when Forking"]={{[1]={flags=1024,keywordFlags=0,name="ProjectileCount",type="BASE",value=75}}," for an additional  when Forking "}
 c["Quarterstaff Skills that consume Power Charges count as consuming an additional Power Charge"]={nil,"Quarterstaff Skills that consume Power Charges count as consuming an additional Power Charge "}
-c["Recoup Effects instead occur over 4 seconds"]={nil,"Recoup Effects instead occur over 4 seconds "}
+c["Recoup Effects instead occur over 4 seconds"]={{[1]={flags=0,keywordFlags=0,name="4SecondRecoup",type="FLAG",value=true}},nil}
 c["Recover 1% of Life on Kill"]={{[1]={[1]={percent=1,stat="Life",type="PercentStat"},flags=0,keywordFlags=0,name="LifeOnKill",type="BASE",value=1}},nil}
 c["Recover 10% of Missing Life before being Hit by an Enemy"]={nil,"Recover 10% of Missing Life before being Hit by an Enemy "}
 c["Recover 2% of Life and Mana when you use a Warcry"]={nil,"Recover 2% of Life and Mana when you use a Warcry "}
