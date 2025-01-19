@@ -449,15 +449,17 @@ function calcs.reducePoolsByDamage(poolTable, damageTable, actor)
 		end
 		local esBypass = output[damageType.."EnergyShieldBypass"] or 0
 		if energyShield > 0 and (not modDB:Flag(nil, "EnergyShieldProtectsMana")) and (esBypass) < 100 then
-			local tempDamage = m_min(damageRemainder * (1 - esBypass / 100), energyShield)
-			energyShield = energyShield - tempDamage
+			local esDamageTypeMultiplier = damageType == "Chaos" and 2 or 1
+			local tempDamage = m_min(damageRemainder * (1 - esBypass / 100), energyShield / esDamageTypeMultiplier)
+			energyShield = energyShield - tempDamage * esDamageTypeMultiplier
 			damageRemainder = damageRemainder - tempDamage
 		end
 		if (output.sharedMindOverMatter + output[damageType.."MindOverMatter"]) > 0 then
 			local MoMDamage = damageRemainder * m_min(output.sharedMindOverMatter + output[damageType.."MindOverMatter"], 100) / 100
 			if modDB:Flag(nil, "EnergyShieldProtectsMana") and energyShield > 0 and esBypass < 100 then
-				local tempDamage = m_min(MoMDamage * (1 - esBypass / 100), energyShield)
-				energyShield = energyShield - tempDamage
+				local esDamageTypeMultiplier = damageType == "Chaos" and 2 or 1
+				local tempDamage = m_min(MoMDamage * (1 - esBypass / 100), energyShield / esDamageTypeMultiplier)
+				energyShield = energyShield - tempDamage * esDamageTypeMultiplier
 				MoMDamage = MoMDamage - tempDamage
 				local tempDamage2 = m_min(MoMDamage, mana)
 				mana = mana - tempDamage2
@@ -2308,13 +2310,6 @@ function calcs.buildDefenceEstimations(env, actor)
 			if output[damageType.."EnergyShieldBypass"] ~= 0 then
 				output.AnyBypass = true
 			end
-			if damageType == "Chaos" then
-				if not modDB:Flag(nil, "ChaosNotBypassEnergyShield") then
-					output[damageType.."EnergyShieldBypass"] = output[damageType.."EnergyShieldBypass"] + 100
-				else
-					output.AnyBypass = true
-				end
-			end
 		end
 		output[damageType.."EnergyShieldBypass"] = m_max(m_min(output[damageType.."EnergyShieldBypass"], 100), 0)
 		output.MinimumBypass = m_min(output.MinimumBypass, output[damageType.."EnergyShieldBypass"])
@@ -2546,13 +2541,14 @@ function calcs.buildDefenceEstimations(env, actor)
 			if modDB:Flag(nil, "EnergyShieldProtectsMana") then
 				manatext = manatext.." and non-bypassed Energy Shield"
 			else
+				local chaosESMultiplier = damageType == "Chaos" and 2 or 1
 				if output[damageType.."EnergyShieldBypass"] > 0 then
-					local poolProtected = output.EnergyShieldRecoveryCap / (1 - output[damageType.."EnergyShieldBypass"] / 100) * (output[damageType.."EnergyShieldBypass"] / 100)
+					local poolProtected = output.EnergyShieldRecoveryCap / (1 - output[damageType.."EnergyShieldBypass"] / 100) * (output[damageType.."EnergyShieldBypass"] / 100 / chaosESMultiplier)
 					output[damageType.."TotalPool"] = m_max(output[damageType.."TotalPool"] - poolProtected, 0) + m_min(output[damageType.."TotalPool"], poolProtected) / (output[damageType.."EnergyShieldBypass"] / 100)
 					output[damageType.."TotalHitPool"] = m_max(output[damageType.."TotalHitPool"] - poolProtected, 0) + m_min(output[damageType.."TotalHitPool"], poolProtected) / (output[damageType.."EnergyShieldBypass"] / 100)
 				else
-					output[damageType.."TotalPool"] = output[damageType.."TotalPool"] + output.EnergyShieldRecoveryCap
-					output[damageType.."TotalHitPool"] = output[damageType.."TotalHitPool"] + output.EnergyShieldRecoveryCap
+					output[damageType.."TotalPool"] = output[damageType.."TotalPool"] + output.EnergyShieldRecoveryCap / chaosESMultiplier
+					output[damageType.."TotalHitPool"] = output[damageType.."TotalHitPool"] + output.EnergyShieldRecoveryCap / chaosESMultiplier
 				end
 			end
 		end

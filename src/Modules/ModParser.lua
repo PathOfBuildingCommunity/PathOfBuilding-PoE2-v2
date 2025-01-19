@@ -2178,6 +2178,13 @@ local specialModList = {
 	["physical damage taken bypasses energy shield"] = {
 		mod("PhysicalEnergyShieldBypass", "BASE", 100),
 	},
+	["(%d+)%% of damage taken bypasses energy shield"] = function(num) return {
+		mod("PhysicalEnergyShieldBypass", "OVERRIDE", num),
+		mod("LightningEnergyShieldBypass", "OVERRIDE", num),
+		mod("ColdEnergyShieldBypass", "OVERRIDE", num),
+		mod("FireEnergyShieldBypass", "OVERRIDE", num),
+		mod("ChaosEnergyShieldBypass", "OVERRIDE", num),
+	} end,
 	["auras from your skills do not affect allies"] = { flag("SelfAuraSkillsCannotAffectAllies") },
 	["auras from your skills have (%d+)%% more effect on you"] = function(num) return { mod("SkillAuraEffectOnSelf", "MORE", num) } end,
 	["auras from your skills have (%d+)%% increased effect on you"] = function(num) return { mod("SkillAuraEffectOnSelf", "INC", num) } end,
