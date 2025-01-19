@@ -142,23 +142,26 @@ local function setRadiusJewelStats(radiusJewel, radiusJewelStats)
 end
 
 local function addStats(jewel, node, spec)
-	-- reset node stats to base or override for attributes
-	if spec.hashOverrides and spec.hashOverrides[node.id] then
-		node.sd = copyTable(spec.hashOverrides[node.id].sd, true)
-	else
-		node.sd = copyTable(spec.tree.nodes[node.id].sd, true)
-	end
-
-	local radiusJewelStats = { }
-	setRadiusJewelStats(jewel, radiusJewelStats)
-	for _, stat in ipairs(radiusJewelStats) do
-		-- the node and stat types match, add sd to node if it's not already there and it's an 'also grant' mod
-		if not isValueInTable(node.sd, stat.sd) and ((node.type == "Notable" and stat.isNotable) or (node.type == "Normal" and not stat.isNotable))
-			and stat.toAdd then
-			t_insert(node.sd, stat.sd)
+	-- short term to avoid running the logic on AddItemTooltip
+	if not spec.build.itemsTab.skipTimeLostJewelProcessed then
+		-- reset node stats to base or override for attributes
+		if spec.hashOverrides and spec.hashOverrides[node.id] then
+			node.sd = copyTable(spec.hashOverrides[node.id].sd, true)
+		else
+			node.sd = copyTable(spec.tree.nodes[node.id].sd, true)
 		end
+
+		local radiusJewelStats = { }
+		setRadiusJewelStats(jewel, radiusJewelStats)
+		for _, stat in ipairs(radiusJewelStats) do
+			-- the node and stat types match, add sd to node if it's not already there and it's an 'also grant' mod
+			if not isValueInTable(node.sd, stat.sd) and ((node.type == "Notable" and stat.isNotable) or (node.type == "Normal" and not stat.isNotable))
+				and stat.toAdd then
+				t_insert(node.sd, stat.sd)
+			end
+		end
+		spec.tree:ProcessStats(node)
 	end
-	spec.tree:ProcessStats(node)
 	return node.modList
 end
 
@@ -169,7 +172,7 @@ local function addStatsFromJewelToNode(jewel, node, spec)
 		-- if the Time-Lost jewel is socketed, add the stat
 		if itemsTab.activeSocketList then
 			for _, nodeId in pairs(itemsTab.activeSocketList) do
-				local _, socketedJewel = itemsTab:GetSocketAndJewelForNodeID(nodeId)
+				local socketIndex, socketedJewel = itemsTab:GetSocketAndJewelForNodeID(nodeId)
 				if socketedJewel and socketedJewel.baseName:find("Time%-Lost") == 1 then
 					return addStats(jewel, node, spec)
 				end
